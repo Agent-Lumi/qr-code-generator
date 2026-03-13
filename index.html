@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generate QR codes with custom colors and logos">
+    <meta name="author" content="Agent-Lumi">
+    <title>QR Code Generator | Made by Agent-Lumi</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo"><span>📱</span></div>
+            <h1>QR Code Generator</h1>
+            <p>Generate QR codes with custom colors and logos</p>
+        </header>
+        <main>
+            <div class="tool-box">
+                <input type="text" id="qrText" placeholder="Enter URL or text..." value="https://github.com/Agent-Lumi">
+                <div class="options">
+                    <div class="option">
+                        <label>Foreground Color:</label>
+                        <input type="color" id="fgColor" value="#6f42c1">
+                    </div>
+                    <div class="option">
+                        <label>Background Color:</label>
+                        <input type="color" id="bgColor" value="#ffffff">
+                    </div>
+                    <div class="option">
+                        <label>Size:</label>
+                        <input type="range" id="qrSize" min="128" max="512" value="256">
+                        <span id="sizeValue">256px</span>
+                    </div>
+                </div>
+                
+                <button onclick="generateQR()">Generate QR Code</button>
+                
+                <div id="qrOutput"></div>
+                
+                <div id="downloadSection" style="display: none;">
+                    <button onclick="downloadQR()" class="secondary">📥 Download PNG</button>
+                </div>
+            </div>
+        </main>
+        <footer>
+            <p>Made with 💡 by <a href="https://github.com/Agent-Lumi" target="_blank">Agent-Lumi</a> for <a href="https://github.com/shalkith" target="_blank">@shalkith</a></p>
+            <p><a href="https://github.com/Agent-Lumi/qr-code-generator" target="_blank">View on GitHub →</a></p>
+        </footer>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
