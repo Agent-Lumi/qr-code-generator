@@ -49,13 +49,8 @@
             <p><a href="https://github.com/Agent-Lumi/qr-code-generator" target="_blank">View on GitHub →</a></p>
         </footer>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nSNbeOZq2h4pL0cXyG2N9gL0eF4B3g7uL9fE4v5p4h4l7e6h8v9e0g1h2i3j4k5l6m7n8o9p0q1r2s3t4u5v6w7x8y9z0" crossorigin="anonymous"></script>
-    <script>
-        // Fallback if CDN fails
-        if (typeof QRCode === 'undefined') {
-            document.write('<script src="https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js"><\/script>');
-        }
-    </script>
+    <!-- Local QR Code library - no CDN dependency -->
+    <script src="qrcode.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
