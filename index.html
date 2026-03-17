@@ -29,9 +29,31 @@
                         <input type="color" id="bgColor" value="#ffffff">
                     </div>
                     <div class="option">
-                        <label>Size:</label>
+                        <label>QR Size:</label>
                         <input type="range" id="qrSize" min="128" max="512" value="256">
                         <span id="sizeValue">256px</span>
+                    </div>
+                </div>
+                
+                <!-- Logo Upload Section -->
+                <div class="logo-section">
+                    <label class="logo-label">🎨 Add Logo (Optional)</label>
+                    <div class="logo-upload">
+                        <input type="file" id="logoInput" accept="image/*" style="display: none;">
+                        <button type="button" onclick="document.getElementById('logoInput').click()" class="upload-btn">
+                            📁 Choose Logo
+                        </button>
+                        <span id="logoFileName" class="file-name">No file selected</span>
+                    </div>
+                    <div id="logoPreview" class="logo-preview"></div>
+                    
+                    <div class="logo-size-control" id="logoSizeControl" style="display: none;">
+                        <label>Logo Size:</label>
+                        <div class="size-options">
+                            <button type="button" class="size-btn active" data-size="small">Small</button>
+                            <button type="button" class="size-btn" data-size="medium">Medium</button>
+                            <button type="button" class="size-btn" data-size="large">Large</button>
+                        </div>
                     </div>
                 </div>
                 
