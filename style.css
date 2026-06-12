@@ -1,3 +1,7 @@
+/* QR Code Generator Styles */
+/* Made with 💡 by Agent-Lumi */
+
+/* CSS Variables - Dark Theme (Default) */
 :root {
     --primary: #6f42c1;
     --primary-light: #8b5cf6;
@@ -7,19 +11,48 @@
     --text-muted: #a1a1aa;
     --border: #2e2e4a;
     --success: #22c55e;
+    --error: #ef4444;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --gradient-start: #0f0f1a;
+    --gradient-end: #1a1a2e;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* Light Theme */
+[data-theme="light"] {
+    --primary: #6f42c1;
+    --primary-light: #7c3aed;
+    --bg: #f8fafc;
+    --bg-card: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --success: #16a34a;
+    --error: #dc2626;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --gradient-start: #f1f5f9;
+    --gradient-end: #e2e8f0;
+}
+
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
 
 body {
     font-family: system-ui, -apple-system, sans-serif;
-    background: linear-gradient(135deg, var(--bg) 0%, #1a1a2e 100%);
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     color: var(--text);
     min-height: 100vh;
     line-height: 1.6;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
-.container { max-width: 600px; margin: 0 auto; padding: 2rem; }
+.container { 
+    max-width: 600px; 
+    margin: 0 auto; 
+    padding: 2rem; 
+}
 
 header { 
     text-align: center; 
@@ -28,6 +61,7 @@ header {
     background: var(--bg-card);
     border-radius: 16px;
     border: 1px solid var(--border);
+    box-shadow: 0 4px 12px var(--shadow);
 }
 
 .logo {
@@ -53,6 +87,7 @@ header p {
     padding: 2rem;
     border-radius: 16px;
     border: 1px solid var(--border);
+    box-shadow: 0 4px 12px var(--shadow);
 }
 
 input[type="text"] {
@@ -64,11 +99,16 @@ input[type="text"] {
     background: var(--bg);
     color: var(--text);
     font-size: 1rem;
+    transition: border-color 0.2s;
 }
 
 input[type="text"]:focus {
     outline: none;
     border-color: var(--primary);
+}
+
+input[type="text"]::placeholder {
+    color: var(--text-muted);
 }
 
 .options {
@@ -95,11 +135,14 @@ input[type="color"] {
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    padding: 0;
+    background: none;
 }
 
 input[type="range"] {
     flex: 1;
     cursor: pointer;
+    accent-color: var(--primary);
 }
 
 #sizeValue {
@@ -140,6 +183,9 @@ input[type="range"] {
     color: var(--text);
     font-size: 0.95rem;
     margin-bottom: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .upload-btn:hover {
@@ -188,7 +234,9 @@ input[type="range"] {
     border: 1px solid var(--border);
     color: var(--text-muted);
     font-size: 0.9rem;
-    margin-bottom: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .size-btn:hover {
@@ -202,6 +250,7 @@ input[type="range"] {
     color: white;
 }
 
+/* Buttons */
 button {
     width: 100%;
     padding: 1rem;
@@ -218,16 +267,19 @@ button {
 button:hover { 
     background: var(--primary-light);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow);
 }
 
 button.secondary {
     background: var(--bg);
     border: 1px solid var(--border);
-    margin-bottom: 0;
+    color: var(--text);
+    flex: 1;
 }
 
 button.secondary:hover {
     border-color: var(--primary);
+    background: var(--border);
 }
 
 #qrOutput {
@@ -239,6 +291,11 @@ button.secondary:hover {
 #qrOutput img, #qrOutput canvas {
     max-width: 100%;
     border-radius: 8px;
+}
+
+#downloadSection {
+    display: flex;
+    gap: 1rem;
 }
 
 footer { 
@@ -258,10 +315,201 @@ footer a:hover {
     text-decoration: underline;
 }
 
+/* Theme Toggle Button */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: auto;
+    padding: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    z-index: 1000;
+    margin: 0;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    background: var(--border);
+}
+
+/* Offline Indicator */
+.offline-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--error);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    display: none;
+    z-index: 9999;
+    font-weight: 600;
+}
+
+/* Loading State */
+.loading {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+/* Error Message */
+.error {
+    padding: 1rem;
+    color: var(--error);
+    text-align: center;
+}
+
+/* Notification System */
+.notification {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 10000;
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.notification-success {
+    background: var(--success);
+    color: white;
+}
+
+.notification-error {
+    background: var(--error);
+    color: white;
+}
+
+.notification-info {
+    background: var(--primary);
+    color: white;
+}
+
+/* Keyboard Shortcuts Help */
+.keyboard-help {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 8px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    z-index: 100;
+}
+
+.keyboard-help kbd {
+    background: var(--bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    font-family: monospace;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.container {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.tool-box {
+    animation: fadeIn 0.4s ease-out;
+    animation-delay: 0.1s;
+    animation-fill-mode: backwards;
+}
+
+/* Mobile Responsive */
 @media (max-width: 600px) {
-    .container { padding: 1rem; }
-    h1 { font-size: 1.5rem; }
-    .option { flex-direction: column; align-items: flex-start; }
-    .logo-upload { flex-direction: column; align-items: flex-start; }
-    .size-options { flex-wrap: wrap; }
+    .container { 
+        padding: 1rem; 
+    }
+    
+    header { 
+        padding: 1.5rem; 
+    }
+    
+    h1 { 
+        font-size: 1.5rem; 
+    }
+    
+    .option { 
+        flex-direction: column; 
+        align-items: flex-start; 
+    }
+    
+    .option label {
+        min-width: auto;
+    }
+    
+    .logo-upload { 
+        flex-direction: column; 
+        align-items: flex-start; 
+    }
+    
+    .size-options { 
+        flex-wrap: wrap; 
+    }
+    
+    .theme-toggle {
+        top: 10px;
+        right: 10px;
+        padding: 8px;
+        font-size: 16px;
+    }
+    
+    #downloadSection {
+        flex-direction: column;
+    }
+    
+    button.secondary {
+        width: 100%;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .theme-toggle,
+    .offline-indicator,
+    footer,
+    button:not(#downloadSection button) {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+    }
+    
+    .tool-box {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
 }

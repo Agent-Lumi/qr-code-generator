@@ -12,6 +12,86 @@ const LOGO_SIZES = {
     large: 0.35    // 35% of QR code
 };
 
+// Theme Management
+const ThemeManager = {
+    STORAGE_KEY: 'qr-theme-preference',
+    
+    init() {
+        const savedTheme = localStorage.getItem(this.STORAGE_KEY) || 'dark';
+        this.applyTheme(savedTheme);
+        this.setupToggle();
+        this.updateIcon(savedTheme);
+    },
+    
+    applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        document.body.className = theme === 'light' ? 'light-theme' : '';
+    },
+    
+    toggle() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        this.applyTheme(newTheme);
+        localStorage.setItem(this.STORAGE_KEY, newTheme);
+        this.updateIcon(newTheme);
+    },
+    
+    updateIcon(theme) {
+        const icon = document.getElementById('themeIcon');
+        if (icon) {
+            icon.textContent = theme === 'dark' ? '🌙' : '☀️';
+        }
+    },
+    
+    setupToggle() {
+        const toggle = document.getElementById('themeToggle');
+        if (toggle) {
+            toggle.addEventListener('click', () => this.toggle());
+        }
+    }
+};
+
+// Offline Indicator
+const OfflineManager = {
+    init() {
+        const indicator = document.getElementById('offlineIndicator');
+        
+        const updateStatus = () => {
+            if (indicator) {
+                indicator.style.display = navigator.onLine ? 'none' : 'block';
+            }
+        };
+        
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+        updateStatus();
+    }
+};
+
+// Keyboard Shortcuts
+const KeyboardShortcuts = {
+    init() {
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'Enter':
+                        e.preventDefault();
+                        generateQR();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        if (currentQR) downloadQR();
+                        break;
+                    case 't':
+                        e.preventDefault();
+                        ThemeManager.toggle();
+                        break;
+                }
+            }
+        });
+    }
+};
+
 function generateQR() {
     const text = document.getElementById('qrText').value;
     const fgColor = document.getElementById('fgColor').value;
@@ -19,13 +99,16 @@ function generateQR() {
     const size = parseInt(document.getElementById('qrSize').value);
     
     if (!text) {
-        alert('Please enter some text or URL');
+        showNotification('Please enter some text or URL', 'error');
         return;
     }
     
     // Clear previous QR
     const output = document.getElementById('qrOutput');
     output.innerHTML = '';
+    
+    // Show loading state
+    output.innerHTML = '<div class="loading">⏳ Generating...</div>';
     
     try {
         // Create a temporary container for the QR code
@@ -63,22 +146,30 @@ function generateQR() {
                 }
                 
                 // Display the final QR code
+                output.innerHTML = '';
                 output.appendChild(finalCanvas);
                 
                 // Store reference for download
                 currentQR = finalCanvas;
+                
+                // Show success notification
+                showNotification('QR Code generated successfully!', 'success');
             }
             
             // Clean up temp container
             document.body.removeChild(tempContainer);
             
-            // Show download button
-            document.getElementById('downloadSection').style.display = 'block';
+            // Show download section
+            const downloadSection = document.getElementById('downloadSection');
+            if (downloadSection) {
+                downloadSection.style.display = 'flex';
+            }
         }, 100);
         
     } catch (error) {
         console.error('Error generating QR:', error);
-        output.innerHTML = '<p style="color: #ef4444;">Error generating QR code. Please try again.</p>';
+        output.innerHTML = '<p class="error">Error generating QR code. Please try again.</p>';
+        showNotification('Failed to generate QR code', 'error');
     }
 }
 
@@ -109,20 +200,71 @@ function addLogoToCanvas(ctx, canvas, qrSize) {
 
 function downloadQR() {
     if (!currentQR) {
-        alert('Generate a QR code first!');
+        showNotification('Generate a QR code first!', 'error');
         return;
     }
     
+    const text = document.getElementById('qrText').value;
+    const filename = 'qrcode-' + text.substring(0, 20).replace(/[^a-zA-Z0-9]/g, '-') + '.png';
+    
     const link = document.createElement('a');
-    link.download = 'qrcode-with-logo.png';
+    link.download = filename;
     link.href = currentQR.toDataURL('image/png');
     link.click();
+    
+    showNotification('QR Code downloaded!', 'success');
+}
+
+// Share functionality
+async function shareQR() {
+    if (!currentQR) {
+        showNotification('Generate a QR code first!', 'error');
+        return;
+    }
+    
+    try {
+        const blob = await new Promise(resolve => {
+            currentQR.toBlob(resolve, 'image/png');
+        });
+        
+        const file = new File([blob], 'qrcode.png', { type: 'image/png' });
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                title: 'QR Code',
+                text: 'Generated with QR Code Generator by Agent-Lumi',
+                files: [file]
+            });
+            showNotification('QR Code shared!', 'success');
+        } else {
+            // Fallback: copy data URL to clipboard
+            const dataUrl = currentQR.toDataURL('image/png');
+            await navigator.clipboard.writeText(dataUrl);
+            showNotification('QR Code data URL copied to clipboard!', 'success');
+        }
+    } catch (error) {
+        if (error.name !== 'AbortError') {
+            showNotification('Failed to share QR code', 'error');
+        }
+    }
 }
 
 // Logo upload handling
 function handleLogoUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        showNotification('Please select a valid image file', 'error');
+        return;
+    }
+    
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        showNotification('Logo image must be under 2MB', 'error');
+        return;
+    }
     
     // Update file name display
     document.getElementById('logoFileName').textContent = file.name;
@@ -170,8 +312,36 @@ function handleLogoSizeClick(event) {
     }
 }
 
+// Notification system
+function showNotification(message, type = 'info') {
+    const existing = document.querySelector('.notification');
+    if (existing) existing.remove();
+    
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    requestAnimationFrame(() => {
+        notification.classList.add('show');
+    });
+    
+    // Remove after delay
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize managers
+    ThemeManager.init();
+    OfflineManager.init();
+    KeyboardShortcuts.init();
+    
     // Update size display
     const sizeSlider = document.getElementById('qrSize');
     if (sizeSlider) {
@@ -180,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Generate on Enter key
+    // Generate on Enter key (also in input)
     const textInput = document.getElementById('qrText');
     if (textInput) {
         textInput.addEventListener('keypress', function(e) {
@@ -188,6 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 generateQR();
             }
         });
+        textInput.focus();
     }
     
     // Logo upload
@@ -202,9 +373,15 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', handleLogoSizeClick);
     });
     
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(console.error);
+    }
+    
     // Generate default QR on load
-    generateQR();
+    setTimeout(generateQR, 100);
 });
 
 console.log('%c💡 QR Code Generator with Logo Overlay', 'font-size: 20px; color: #6f42c1;');
 console.log('%cMade by Agent-Lumi for @shalkith', 'font-size: 12px; color: #8b5cf6;');
+console.log('%cKeyboard shortcuts: Ctrl+Enter = Generate, Ctrl+S = Download, Ctrl+T = Toggle Theme', 'font-size: 11px; color: #888;');
