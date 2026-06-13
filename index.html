@@ -66,6 +66,17 @@
                     <button onclick="downloadQR()" class="secondary">📥 Download PNG</button>
                     <button onclick="shareQR()" class="secondary">🔗 Share</button>
                 </div>
+                
+                <!-- QR Code History -->
+                <div id="historyPanel" class="history-panel hidden">
+                    <div class="history-header">
+                        <h3>📚 Recent QR Codes</h3>
+                        <button id="clearHistoryBtn" class="history-clear" title="Clear all history">Clear All</button>
+                    </div>
+                    <div id="qrHistory" class="history-list">
+                        <p class="history-empty">No saved QR codes yet. Generate one to save it here!</p>
+                    </div>
+                </div>
             </div>
         </main>
         <footer>
@@ -77,6 +88,11 @@
     <!-- Theme Toggle Button -->
     <button id="themeToggle" class="theme-toggle" title="Toggle Light/Dark Theme">
         <span id="themeIcon">🌙</span>
+    </button>
+    
+    <!-- History Toggle Button -->
+    <button id="historyToggle" class="history-toggle" title="Toggle History Panel">
+        <span>📚</span>
     </button>
     
     <!-- Offline Indicator -->

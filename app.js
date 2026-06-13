@@ -5,6 +5,49 @@ let currentQR = null;
 let uploadedLogo = null;
 let logoSize = 'small'; // small, medium, large
 
+// QR History Manager
+const QRHistoryManager = {
+    STORAGE_KEY: 'qr-code-history',
+    MAX_HISTORY: 10,
+    
+    getHistory() {
+        const history = localStorage.getItem(this.STORAGE_KEY);
+        return history ? JSON.parse(history) : [];
+    },
+    
+    saveToHistory(qrData) {
+        const history = this.getHistory();
+        const newEntry = {
+            ...qrData,
+            timestamp: Date.now()
+        };
+        
+        // Remove duplicate (by text content)
+        const filtered = history.filter(h => h.text !== qrData.text);
+        
+        // Add to beginning
+        filtered.unshift(newEntry);
+        
+        // Keep only MAX_HISTORY items
+        const trimmed = filtered.slice(0, this.MAX_HISTORY);
+        
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(trimmed));
+        return trimmed;
+    },
+    
+    deleteFromHistory(timestamp) {
+        const history = this.getHistory();
+        const filtered = history.filter(h => h.timestamp !== timestamp);
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered));
+        return filtered;
+    },
+    
+    clearHistory() {
+        localStorage.removeItem(this.STORAGE_KEY);
+        return [];
+    }
+};
+
 // Logo size percentages (relative to QR code size)
 const LOGO_SIZES = {
     small: 0.15,   // 15% of QR code
@@ -86,6 +129,10 @@ const KeyboardShortcuts = {
                         e.preventDefault();
                         ThemeManager.toggle();
                         break;
+                    case 'h':
+                        e.preventDefault();
+                        document.getElementById('historyPanel')?.classList.toggle('hidden');
+                        break;
                 }
             }
         });
@@ -154,6 +201,17 @@ function generateQR() {
                 
                 // Show success notification
                 showNotification('QR Code generated successfully!', 'success');
+                
+                // Save to history
+                const qrData = {
+                    text: text,
+                    dataUrl: finalCanvas.toDataURL('image/png'),
+                    fgColor: fgColor,
+                    bgColor: bgColor,
+                    size: size
+                };
+                QRHistoryManager.saveToHistory(qrData);
+                renderQRHistory();
             }
             
             // Clean up temp container
@@ -312,6 +370,82 @@ function handleLogoSizeClick(event) {
     }
 }
 
+// Render QR History panel
+function renderQRHistory() {
+    const history = QRHistoryManager.getHistory();
+    const container = document.getElementById('qrHistory');
+    const panel = document.getElementById('historyPanel');
+    
+    if (!container) return;
+    
+    if (history.length === 0) {
+        container.innerHTML = '<p class="history-empty">No saved QR codes yet. Generate one to save it here!</p>';
+        panel?.classList.add('hidden');
+        return;
+    }
+    
+    panel?.classList.remove('hidden');
+    
+    const items = history.map(item => {
+        const date = new Date(item.timestamp);
+        const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        const shortText = item.text.substring(0, 30) + (item.text.length > 30 ? '...' : '');
+        
+        return `
+            <div class="history-item" data-timestamp="${item.timestamp}">
+                <img src="${item.dataUrl}" alt="QR" class="history-thumb">
+                <div class="history-info">
+                    <p class="history-text" title="${item.text.replace(/"/g, '&quot;')}">${shortText}</p>
+                    <span class="history-date">${dateStr} ${timeStr}</span>
+                </div>
+                <div class="history-actions">
+                    <button class="history-load" title="Load this QR code">↩️</button>
+                    <button class="history-delete" title="Delete">🗑️</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = items;
+    
+    // Add event listeners
+    container.querySelectorAll('.history-item').forEach(item => {
+        const timestamp = parseInt(item.dataset.timestamp);
+        
+        item.querySelector('.history-load').addEventListener('click', () => {
+            const entry = history.find(h => h.timestamp === timestamp);
+            if (entry) {
+                loadQRFromHistory(entry);
+            }
+        });
+        
+        item.querySelector('.history-delete').addEventListener('click', () => {
+            QRHistoryManager.deleteFromHistory(timestamp);
+            renderQRHistory();
+            showNotification('Removed from history', 'info');
+        });
+    });
+}
+
+// Load QR code from history
+function loadQRFromHistory(entry) {
+    document.getElementById('qrText').value = entry.text;
+    document.getElementById('fgColor').value = entry.fgColor || '#6f42c1';
+    document.getElementById('bgColor').value = entry.bgColor || '#ffffff';
+    document.getElementById('qrSize').value = entry.size || 256;
+    document.getElementById('sizeValue').textContent = (entry.size || 256) + 'px';
+    
+    // Clear logo
+    uploadedLogo = null;
+    document.getElementById('logoPreview').innerHTML = '';
+    document.getElementById('logoFileName').textContent = 'No file selected';
+    document.getElementById('logoSizeControl').style.display = 'none';
+    
+    generateQR();
+    showNotification('Loaded from history', 'success');
+}
+
 // Notification system
 function showNotification(message, type = 'info') {
     const existing = document.querySelector('.notification');
@@ -378,10 +512,34 @@ document.addEventListener('DOMContentLoaded', function() {
         navigator.serviceWorker.register('sw.js').catch(console.error);
     }
     
+    // History toggle button
+    const historyToggle = document.getElementById('historyToggle');
+    const historyPanel = document.getElementById('historyPanel');
+    if (historyToggle && historyPanel) {
+        historyToggle.addEventListener('click', () => {
+            historyPanel.classList.toggle('hidden');
+        });
+    }
+    
+    // Clear history button
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    if (clearHistoryBtn) {
+        clearHistoryBtn.addEventListener('click', () => {
+            if (confirm('Clear all QR code history?')) {
+                QRHistoryManager.clearHistory();
+                renderQRHistory();
+                showNotification('History cleared', 'info');
+            }
+        });
+    }
+    
+    // Render any existing history
+    renderQRHistory();
+    
     // Generate default QR on load
     setTimeout(generateQR, 100);
 });
 
 console.log('%c💡 QR Code Generator with Logo Overlay', 'font-size: 20px; color: #6f42c1;');
 console.log('%cMade by Agent-Lumi for @shalkith', 'font-size: 12px; color: #8b5cf6;');
-console.log('%cKeyboard shortcuts: Ctrl+Enter = Generate, Ctrl+S = Download, Ctrl+T = Toggle Theme', 'font-size: 11px; color: #888;');
+console.log('%cKeyboard shortcuts: Ctrl+Enter = Generate, Ctrl+S = Download, Ctrl+T = Toggle Theme, Ctrl+H = Toggle History', 'font-size: 11px; color: #888;');

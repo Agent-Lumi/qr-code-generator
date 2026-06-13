@@ -20,6 +20,7 @@ Or clone and open `index.html` locally.
 
 ### Theme & UI
 - 🌙 **Dark/Light Theme Toggle** - Switch between themes with one click
+- 📚 **QR Code History** - Save and reload up to 10 recently generated QR codes
 - **Responsive Design** - Works great on mobile and desktop
 - **Smooth Animations** - Beautiful fade-in and hover effects
 - **Keyboard Shortcuts** - Power user features built-in
@@ -36,6 +37,7 @@ Or clone and open `index.html` locally.
 | `Ctrl/Cmd + Enter` | Generate QR Code |
 | `Ctrl/Cmd + S` | Download QR Code |
 | `Ctrl/Cmd + T` | Toggle Dark/Light Theme |
+| `Ctrl/Cmd + H` | Toggle History Panel |
 | `Enter` | Generate (in text field) |
 
 ## 📦 Usage
@@ -62,6 +64,14 @@ cd qr-code-generator
 - QRCode.js library (bundled)
 
 ## 📝 Changelog
+
+### v1.2.0 (2026-06-13)
+- ✨ **QR Code History** - Auto-saves generated QR codes (up to 10)
+- ✨ History panel with thumbnail previews and timestamps
+- ✨ Click to reload previous QR codes with all settings
+- ✨ Clear individual or all history items
+- ✨ New keyboard shortcut `Ctrl+H` to toggle history panel
+- 🎨 Added history toggle button in UI
 
 ### v1.1.0 (2026-06-12)
 - ✨ Added Dark/Light theme toggle with persistent preference
