@@ -1,4 +1,4 @@
-// QR Code Generator with Logo Overlay
+// QR Code Generator with Logo Overlay & Templates
 // Made with 💡 by Agent-Lumi
 
 let currentQR = null;
@@ -45,6 +45,221 @@ const QRHistoryManager = {
     clearHistory() {
         localStorage.removeItem(this.STORAGE_KEY);
         return [];
+    }
+};
+
+// Template Manager
+const TemplateManager = {
+    currentTemplate: 'url',
+    
+    // Template definitions
+    templates: {
+        url: {
+            name: 'URL',
+            icon: '🔗',
+            fields: [
+                { name: 'url', label: 'Website URL', type: 'url', placeholder: 'https://example.com', required: true }
+            ],
+            generate(data) {
+                return data.url;
+            }
+        },
+        wifi: {
+            name: 'WiFi',
+            icon: '📶',
+            fields: [
+                { name: 'ssid', label: 'Network Name (SSID)', type: 'text', placeholder: 'MyWiFi', required: true },
+                { name: 'password', label: 'Password', type: 'password', placeholder: 'WiFi password', required: false },
+                { name: 'security', label: 'Security Type', type: 'select', options: ['WPA', 'WEP', 'nopass'], required: true }
+            ],
+            generate(data) {
+                const security = data.security || 'WPA';
+                return `WIFI:T:${security};S:${data.ssid};P:${data.password || ''};;`;
+            }
+        },
+        vcard: {
+            name: 'vCard',
+            icon: '👤',
+            fields: [
+                { name: 'firstName', label: 'First Name', type: 'text', placeholder: 'John', required: true },
+                { name: 'lastName', label: 'Last Name', type: 'text', placeholder: 'Doe', required: true },
+                { name: 'phone', label: 'Phone Number', type: 'tel', placeholder: '+1 555-123-4567', required: false },
+                { name: 'email', label: 'Email', type: 'email', placeholder: 'john@example.com', required: false },
+                { name: 'org', label: 'Organization', type: 'text', placeholder: 'Company Name', required: false }
+            ],
+            generate(data) {
+                return `BEGIN:VCARD\nVERSION:3.0\nFN:${data.firstName} ${data.lastName}\nN:${data.lastName};${data.firstName};;;\n${data.phone ? `TEL:${data.phone}\n` : ''}${data.email ? `EMAIL:${data.email}\n` : ''}${data.org ? `ORG:${data.org}\n` : ''}END:VCARD`;
+            }
+        },
+        email: {
+            name: 'Email',
+            icon: '📧',
+            fields: [
+                { name: 'to', label: 'To', type: 'email', placeholder: 'recipient@example.com', required: true },
+                { name: 'subject', label: 'Subject', type: 'text', placeholder: 'Email subject', required: false },
+                { name: 'body', label: 'Message', type: 'textarea', placeholder: 'Your message...', required: false }
+            ],
+            generate(data) {
+                let mailto = `mailto:${data.to}`;
+                const params = [];
+                if (data.subject) params.push(`subject=${encodeURIComponent(data.subject)}`);
+                if (data.body) params.push(`body=${encodeURIComponent(data.body)}`);
+                if (params.length > 0) {
+                    mailto += '?' + params.join('&');
+                }
+                return mailto;
+            }
+        },
+        sms: {
+            name: 'SMS',
+            icon: '💬',
+            fields: [
+                { name: 'phone', label: 'Phone Number', type: 'tel', placeholder: '+1 555-123-4567', required: true },
+                { name: 'message', label: 'Message', type: 'textarea', placeholder: 'Your message...', required: false }
+            ],
+            generate(data) {
+                let sms = `sms:${data.phone}`;
+                if (data.message) {
+                    sms += `?body=${encodeURIComponent(data.message)}`;
+                }
+                return sms;
+            }
+        },
+        phone: {
+            name: 'Phone',
+            icon: '📞',
+            fields: [
+                { name: 'phone', label: 'Phone Number', type: 'tel', placeholder: '+1 555-123-4567', required: true }
+            ],
+            generate(data) {
+                return `tel:${data.phone}`;
+            }
+        }
+    },
+    
+    init() {
+        this.setupEventListeners();
+    },
+    
+    setupEventListeners() {
+        // Template button clicks
+        document.querySelectorAll('.template-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const template = e.target.dataset.template;
+                this.selectTemplate(template);
+            });
+        });
+        
+        // Templates toggle
+        const templatesToggle = document.getElementById('templatesToggle');
+        const templatesSection = document.querySelector('.qr-templates');
+        if (templatesToggle && templatesSection) {
+            templatesToggle.addEventListener('click', () => {
+                templatesSection.classList.toggle('hidden');
+            });
+        }
+    },
+    
+    selectTemplate(templateKey) {
+        this.currentTemplate = templateKey;
+        const template = this.templates[templateKey];
+        
+        // Update active button
+        document.querySelectorAll('.template-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.template === templateKey) {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Render configuration panel
+        this.renderConfigPanel(template);
+    },
+    
+    renderConfigPanel(template) {
+        const panel = document.getElementById('templateConfigPanel');
+        const title = document.getElementById('templateTitle');
+        const fields = document.getElementById('templateFields');
+        
+        if (!panel || !title || !fields) return;
+        
+        title.textContent = `${template.icon} ${template.name} QR Code`;
+        
+        // Build form fields
+        let html = '';
+        template.fields.forEach(field => {
+            const requiredAttr = field.required ? 'required' : '';
+            const requiredLabel = field.required ? ' *' : '';
+            
+            if (field.type === 'select') {
+                html += `
+                    <div class="template-field">
+                        <label for="field-${field.name}">${field.label}${requiredLabel}</label>
+                        <select id="field-${field.name}" ${requiredAttr}>
+                            ${field.options.map(opt => `<option value="${opt.toLowerCase()}">${opt}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            } else if (field.type === 'textarea') {
+                html += `
+                    <div class="template-field">
+                        <label for="field-${field.name}">${field.label}${requiredLabel}</label>
+                        <textarea id="field-${field.name}" rows="3" placeholder="${field.placeholder || ''}" ${requiredAttr}></textarea>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="template-field">
+                        <label for="field-${field.name}">${field.label}${requiredLabel}</label>
+                        <input type="${field.type}" id="field-${field.name}" placeholder="${field.placeholder || ''}" ${requiredAttr}>
+                    </div>
+                `;
+            }
+        });
+        
+        html += '<button type="button" class="template-apply" onclick="TemplateManager.applyTemplate()">Generate QR Code</button>';
+        
+        fields.innerHTML = html;
+        panel.classList.remove('hidden');
+    },
+    
+    applyTemplate() {
+        const template = this.templates[this.currentTemplate];
+        const data = {};
+        
+        // Collect field values
+        let hasError = false;
+        template.fields.forEach(field => {
+            const input = document.getElementById(`field-${field.name}`);
+            if (input) {
+                data[field.name] = input.value.trim();
+                if (field.required && !data[field.name]) {
+                    input.style.borderColor = 'var(--error)';
+                    hasError = true;
+                } else {
+                    input.style.borderColor = '';
+                }
+            }
+        });
+        
+        if (hasError) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+        
+        // Generate QR code content
+        const qrContent = template.generate(data);
+        
+        // Update main input
+        document.getElementById('qrText').value = qrContent;
+        
+        // Generate QR
+        generateQR();
+        
+        // Close panel
+        document.getElementById('templateConfigPanel').classList.add('hidden');
+        
+        showNotification(`${template.name} QR code generated!`, 'success');
     }
 };
 
@@ -469,12 +684,26 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+// Close template config panel
+function closeTemplateConfig() {
+    const panel = document.getElementById('templateConfigPanel');
+    if (panel) {
+        panel.classList.add('hidden');
+    }
+    
+    // Deselect active template button
+    document.querySelectorAll('.template-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize managers
     ThemeManager.init();
     OfflineManager.init();
     KeyboardShortcuts.init();
+    TemplateManager.init();
     
     // Update size display
     const sizeSlider = document.getElementById('qrSize');
@@ -540,6 +769,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(generateQR, 100);
 });
 
-console.log('%c💡 QR Code Generator with Logo Overlay', 'font-size: 20px; color: #6f42c1;');
+console.log('%c💡 QR Code Generator with Logo Overlay & Templates', 'font-size: 20px; color: #6f42c1;');
 console.log('%cMade by Agent-Lumi for @shalkith', 'font-size: 12px; color: #8b5cf6;');
 console.log('%cKeyboard shortcuts: Ctrl+Enter = Generate, Ctrl+S = Download, Ctrl+T = Toggle Theme, Ctrl+H = Toggle History', 'font-size: 11px; color: #888;');

@@ -18,6 +18,15 @@ Or clone and open `index.html` locally.
 - **PNG Download** - Download high-quality PNG images
 - **Share Feature** - Native sharing on supported devices
 
+### QR Code Templates 🎯
+Quick templates for common use cases:
+- **🔗 URL** - Standard website links
+- **📶 WiFi** - Generate QR codes for WiFi networks (scannable to connect automatically)
+- **👤 vCard** - Create contact cards with name, phone, email, and organization
+- **📧 Email** - Pre-filled email with subject and body
+- **💬 SMS** - Pre-filled text messages
+- **📞 Phone** - Direct dial numbers
+
 ### Theme & UI
 - 🌙 **Dark/Light Theme Toggle** - Switch between themes with one click
 - 📚 **QR Code History** - Save and reload up to 10 recently generated QR codes
@@ -64,6 +73,14 @@ cd qr-code-generator
 - QRCode.js library (bundled)
 
 ## 📝 Changelog
+
+### v1.3.0 (2026-06-15)
+- ✨ **QR Code Templates** - Pre-configured templates for common use cases
+- ✨ WiFi QR codes with automatic connection on scan
+- ✨ vCard templates for contact sharing
+- ✨ Email and SMS templates with pre-filled content
+- ✨ Phone number templates for direct dialing
+- ✨ Templates toggle button in fixed position UI
 
 ### v1.2.0 (2026-06-13)
 - ✨ **QR Code History** - Auto-saves generated QR codes (up to 10)

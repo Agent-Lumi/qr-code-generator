@@ -591,6 +591,160 @@ footer a:hover {
     font-family: monospace;
 }
 
+/* Templates Section */
+.qr-templates {
+    margin-bottom: 1.5rem;
+}
+
+.qr-templates > label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.template-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.template-btn {
+    padding: 0.75rem 0.5rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.template-btn:hover {
+    border-color: var(--primary);
+    background: var(--border);
+    transform: translateY(-1px);
+}
+
+.template-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* Templates Toggle Button */
+.templates-toggle {
+    position: fixed;
+    top: 20px;
+    right: 120px;
+    width: auto;
+    padding: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    z-index: 1000;
+    margin: 0;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.templates-toggle:hover {
+    transform: scale(1.1);
+    background: var(--border);
+}
+
+/* Template Config Panel */
+.template-config {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--bg);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.template-config.hidden {
+    display: none;
+}
+
+.config-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.config-header span {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.close-config {
+    width: auto;
+    padding: 0.25rem 0.5rem;
+    margin: 0;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.close-config:hover {
+    color: var(--error);
+    transform: none;
+    box-shadow: none;
+}
+
+.template-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.template-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.template-field label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.template-field input,
+.template-field select {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-card);
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.template-field input:focus,
+.template-field select:focus,
+.template-field textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.template-field textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
+
+.template-apply {
+    margin-top: 0.5rem;
+}
+
 /* Animations */
 @keyframes fadeIn {
     from { 
@@ -652,12 +806,34 @@ footer a:hover {
         font-size: 16px;
     }
     
+    .history-toggle {
+        top: 10px;
+        right: 60px;
+        padding: 8px;
+        font-size: 16px;
+    }
+    
+    .templates-toggle {
+        top: 10px;
+        right: 110px;
+        padding: 8px;
+        font-size: 16px;
+    }
+    
     #downloadSection {
         flex-direction: column;
     }
     
     button.secondary {
         width: 100%;
+    }
+    
+    .template-buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .templates-toggle {
+        display: none; /* Hide toggle on mobile, use inline buttons instead */
     }
 }
 
