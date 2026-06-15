@@ -19,6 +19,29 @@
         </header>
         <main>
             <div class="tool-box">
+                <!-- QR Templates --n                <div class="qr-templates">
+                    <label>🎯 Quick Templates:</label>
+                    <div class="template-buttons">
+                        <button type="button" class="template-btn" data-template="url" title="Standard URL">🔗 URL</button>
+                        <button type="button" class="template-btn" data-template="wifi" title="WiFi Connection">📶 WiFi</button>
+                        <button type="button" class="template-btn" data-template="vcard" title="Contact Card">👤 vCard</button>
+                        <button type="button" class="template-btn" data-template="email" title="Send Email">📧 Email</button>
+                        <button type="button" class="template-btn" data-template="sms" title="Send SMS">💬 SMS</button>
+                        <button type="button" class="template-btn" data-template="phone" title="Call Number">📞 Phone</button>
+                    </div>
+                </div>
+                
+                <!-- Template Configuration Panel -->
+                <div id="templateConfigPanel" class="template-config hidden">
+                    <div class="config-header">
+                        <span id="templateTitle">Template Configuration</span>
+                        <button type="button" class="close-config" onclick="closeTemplateConfig()">×</button>
+                    </div>
+                    <div id="templateFields" class="template-fields">
+                        <!-- Dynamic fields will be inserted here -->
+                    </div>
+                </div>
+                
                 <input type="text" id="qrText" placeholder="Enter URL or text..." value="https://github.com/Agent-Lumi">
                 <div class="options">
                     <div class="option">
@@ -95,6 +118,11 @@
         <span>📚</span>
     </button>
     
+    <!-- Templates Toggle Button -->
+    <button id="templatesToggle" class="templates-toggle" title="Quick QR Templates">
+        <span>🎯</span>
+    </button>
+    
     <!-- Offline Indicator -->
     <div id="offlineIndicator" class="offline-indicator">⚠️ Offline</div>
     
@@ -103,3 +131,12 @@
     <script src="app.js"></script>
 </body>
 </html>
+<script>
+// Offline indicator
+const offlineIndicator = document.createElement('div');
+offlineIndicator.textContent = '⚠️ Offline';
+offlineIndicator.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ff6b6b;color:white;text-align:center;padding:5px;display:none;';
+document.body.appendChild(offlineIndicator);
+window.addEventListener('online', () => offlineIndicator.style.display = 'none');
+window.addEventListener('offline', () => offlineIndicator.style.display = 'block');
+</script>
