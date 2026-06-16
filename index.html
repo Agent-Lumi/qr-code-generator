@@ -19,7 +19,8 @@
         </header>
         <main>
             <div class="tool-box">
-                <!-- QR Templates --n                <div class="qr-templates">
+                <!-- QR Templates -->
+                <div class="qr-templates">
                     <label>🎯 Quick Templates:</label>
                     <div class="template-buttons">
                         <button type="button" class="template-btn" data-template="url" title="Standard URL">🔗 URL</button>
@@ -131,56 +132,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-<script>
-// Offline indicator
-const offlineIndicator = document.createElement('div');
-offlineIndicator.textContent = '⚠️ Offline';
-offlineIndicator.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ff6b6b;color:white;text-align:center;padding:5px;display:none;';
-document.body.appendChild(offlineIndicator);
-window.addEventListener('online', () => offlineIndicator.style.display = 'none');
-window.addEventListener('offline', () => offlineIndicator.style.display = 'block');
-</script>
-<script>
-// Keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey || e.metaKey) {
-        switch(e.key) {
-            case 's': e.preventDefault(); console.log('Save shortcut'); break;
-            case 'r': e.preventDefault(); location.reload(); break;
-            case 'f': e.preventDefault(); document.querySelector('input')?.focus(); break;
-        }
-    }
-});
-</script>
-<style>
-@media (max-width: 768px) {
-    .container { padding: 10px; }
-    h1 { font-size: 1.5rem; }
-    button { width: 100%; margin: 5px 0; }
-}
-</style>
-<script>
-// Offline indicator
-const offlineIndicator = document.createElement('div');
-offlineIndicator.textContent = '⚠️ Offline';
-offlineIndicator.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ff6b6b;color:white;text-align:center;padding:5px;display:none;';
-document.body.appendChild(offlineIndicator);
-window.addEventListener('online', () => offlineIndicator.style.display = 'none');
-window.addEventListener('offline', () => offlineIndicator.style.display = 'block');
-</script>
-<script>
-// Share functionality
-const shareBtn = document.createElement('button');
-shareBtn.textContent = '🔗 Share';
-shareBtn.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:10px 20px;background:#6f42c1;color:white;border:none;border-radius:20px;cursor:pointer;';
-shareBtn.onclick = () => {
-    if (navigator.share) {
-        navigator.share({ title: document.title, url: location.href });
-    } else {
-        navigator.clipboard.writeText(location.href);
-        shareBtn.textContent = '✅ Copied!';
-        setTimeout(() => shareBtn.textContent = '🔗 Share', 2000);
-    }
-};
-document.body.appendChild(shareBtn);
-</script>
